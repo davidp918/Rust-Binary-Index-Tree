@@ -1,8 +1,9 @@
 pub mod indexing {
     use std::iter::successors;
 
-    /// None inclusive limit, input should be tree.len()
-    pub fn lowest_bit_increment(i: usize, limit: usize) -> impl Iterator<Item = usize> {
+    /// Iterator of index that increases its least significant bit until reaching limit.
+    /// Exclusive limit, input should be tree.len()
+    pub fn increment_lsb(i: usize, limit: usize) -> impl Iterator<Item = usize> {
         assert!(i >= 1);
         assert!(i <= limit);
         assert!(limit <= (usize::max_value() >> 1));
@@ -21,8 +22,8 @@ pub mod indexing {
         (i | i.wrapping_sub(1)).wrapping_add(1)
     }
 
-    pub fn lowest_bit_removal(i: usize) -> impl Iterator<Item = usize> {
-        assert!(i >= 1);
+    /// iterator of index that removes its least significant bit until 0
+    pub fn remove_lsb(i: usize) -> impl Iterator<Item = usize> {
         successors(Some(i), move |&i| {
             let next = remove(i);
             if next > 0 {
@@ -59,7 +60,7 @@ mod tests {
             0b1000000000000000000,
         ];
 
-        assert_eq!(res, lowest_bit_removal(input).collect::<Vec<usize>>());
+        assert_eq!(res, remove_lsb(input).collect::<Vec<usize>>());
     }
 
     #[test]
@@ -77,9 +78,6 @@ mod tests {
             // 0b100000000000000000000,
         ];
 
-        assert_eq!(
-            res,
-            lowest_bit_increment(input, limit).collect::<Vec<usize>>()
-        )
+        assert_eq!(res, increment_lsb(input, limit).collect::<Vec<usize>>())
     }
 }
