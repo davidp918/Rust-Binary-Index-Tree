@@ -1,9 +1,9 @@
 use crate::index::indexing::{lowest_bit_increment, lowest_bit_removal};
 use std::ops::AddAssign;
 
-pub struct BinaryIndexTree {
+pub struct BinaryIndexTree<T> whe{
     n: usize,
-    tree: Vec<i32>,
+    tree: Vec<T>,
 }
 
 impl BinaryIndexTree {
