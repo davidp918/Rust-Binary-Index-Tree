@@ -3,12 +3,12 @@ pub mod indexing {
 
     /// Iterator of index that increases its least significant bit until reaching limit.
     /// Exclusive limit, input should be tree.len()
-    pub fn increment_lsb(i: usize, limit: usize) -> impl Iterator<Item = usize> {
+    pub fn bit_up(i: usize, limit: usize) -> impl Iterator<Item = usize> {
         assert!(i >= 1);
         assert!(i <= limit);
         assert!(limit <= (usize::max_value() >> 1));
         successors(Some(i), move |&i| {
-            let next = increment(i);
+            let next = increment_lsb(i);
             if next < limit {
                 Some(next)
             } else {
@@ -18,14 +18,15 @@ pub mod indexing {
     }
 
     #[inline]
-    fn increment(i: usize) -> usize {
+    // increases least significant bit
+    fn increment_lsb(i: usize) -> usize {
         (i | i.wrapping_sub(1)).wrapping_add(1)
     }
 
     /// iterator of index that removes its least significant bit until 0
-    pub fn remove_lsb(i: usize) -> impl Iterator<Item = usize> {
+    pub fn bit_remove(i: usize) -> impl Iterator<Item = usize> {
         successors(Some(i), move |&i| {
-            let next = remove(i);
+            let next = remove_lsb(i);
             if next > 0 {
                 Some(next)
             } else {
@@ -35,7 +36,8 @@ pub mod indexing {
     }
 
     #[inline]
-    fn remove(i: usize) -> usize {
+    // remove least significant bit
+    fn remove_lsb(i: usize) -> usize {
         i & i.wrapping_sub(1)
     }
 }
@@ -60,7 +62,7 @@ mod tests {
             0b1000000000000000000,
         ];
 
-        assert_eq!(res, remove_lsb(input).collect::<Vec<usize>>());
+        assert_eq!(res, bit_remove(input).collect::<Vec<usize>>());
     }
 
     #[test]
@@ -78,6 +80,6 @@ mod tests {
             // 0b100000000000000000000,
         ];
 
-        assert_eq!(res, increment_lsb(input, limit).collect::<Vec<usize>>())
+        assert_eq!(res, bit_up(input, limit).collect::<Vec<usize>>())
     }
 }

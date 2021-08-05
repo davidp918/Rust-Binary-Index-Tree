@@ -1,4 +1,4 @@
-use crate::index::indexing::{increment_lsb, remove_lsb};
+use crate::index::indexing::{bit_remove, bit_up};
 use std::ops::{AddAssign, Sub};
 
 pub struct BinaryIndexTree<T>
@@ -34,7 +34,7 @@ where
     pub fn update(&mut self, index: usize, value: T) {
         let prev = self.query(index + 1) - self.query(index);
         let delta = value - prev;
-        for i in increment_lsb(index + 1, self.n) {
+        for i in bit_up(index + 1, self.n) {
             self.tree[i] += delta;
         }
     }
@@ -42,10 +42,15 @@ where
     /// Query the sum of the original nums[..i]
     pub fn query(&self, i: usize) -> T {
         let mut sum = T::default();
-        for x in remove_lsb(i) {
+        for x in bit_remove(i) {
             sum += self.tree[x];
         }
         sum
+    }
+
+    pub fn range(&self, left: usize, right: usize) -> T {
+        // right + 1, since the querying index is excluded
+        self.query(right as usize + 1) - self.query(left as usize)
     }
 }
 
