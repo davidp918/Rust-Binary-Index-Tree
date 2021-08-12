@@ -2,7 +2,8 @@ pub mod indexing {
     use std::iter::successors;
 
     /// Iterator of index that increases its least significant bit until reaching limit.
-    /// Exclusive limit, input should be tree.len()
+    /// Exclusive limit, meaning the limit itself is not accounted as valid,
+    /// so typically the input should be BinaryIndexTree.n
     pub fn bit_up(i: usize, limit: usize) -> impl Iterator<Item = usize> {
         assert!(i >= 1);
         assert!(i <= limit);
@@ -18,7 +19,7 @@ pub mod indexing {
     }
 
     #[inline]
-    // increases least significant bit
+    // increases the least significant bit
     fn increment_lsb(i: usize) -> usize {
         (i | i.wrapping_sub(1)).wrapping_add(1)
     }
@@ -36,7 +37,7 @@ pub mod indexing {
     }
 
     #[inline]
-    // remove least significant bit
+    // removes the least significant bit
     fn remove_lsb(i: usize) -> usize {
         i & i.wrapping_sub(1)
     }

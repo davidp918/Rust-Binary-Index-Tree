@@ -13,6 +13,7 @@ impl<T> BinaryIndexTree<T>
 where
     T: AddAssign + Sub<Output = T> + Copy + Default,
 {
+    /// Initialize a BIT filled with the default value of T
     pub fn new(length: usize) -> BinaryIndexTree<T> {
         BinaryIndexTree {
             n: length + 1,
@@ -20,6 +21,7 @@ where
         }
     }
 
+    /// Construct a BIT from a given slice of T
     pub fn from(nums: &[T]) -> BinaryIndexTree<T> {
         let n = nums.len();
         let mut tree = Self::new(n);
@@ -29,9 +31,18 @@ where
         tree
     }
 
-    /// Updates the original nums[i], which is zero-based
-    /// which influences the sum of nums[..i+1]
-    pub fn update(&mut self, index: usize, value: T) {
+    /// Add delta to the original nums[index], runs faster than fn update_to
+    /// since the difference of new and old value does not need to be calculated
+    pub fn update(&mut self, index: usize, delta: T) {
+        for i in bit_up(index + 1, self.n) {
+            self.tree[i] += delta;
+        }
+    }
+
+    /// Updates the original nums[index] to value, runs slower than fn update
+    /// since the tree has to compute the difference of new and old value.
+    /// It influences the sum of nums[..index+1]
+    pub fn update_to(&mut self, index: usize, value: T) {
         let prev = self.query(index + 1) - self.query(index);
         let delta = value - prev;
         for i in bit_up(index + 1, self.n) {
@@ -39,15 +50,18 @@ where
         }
     }
 
-    /// Query the sum of the original nums[..i]
-    pub fn query(&self, i: usize) -> T {
+    /// Query the sum of the original nums[..index],
+    /// note nums[index] is excluded
+    pub fn query(&self, index: usize) -> T {
         let mut sum = T::default();
-        for x in bit_remove(i) {
+        for x in bit_remove(index) {
             sum += self.tree[x];
         }
         sum
     }
 
+    /// return the sum over the given range, both inclusive,
+    /// meaning the original nums[left] & nums[right] are included in the sum
     pub fn range(&self, left: usize, right: usize) -> T {
         // right + 1, since the querying index is excluded
         self.query(right as usize + 1) - self.query(left as usize)
@@ -81,7 +95,7 @@ mod test {
             prefix[i + 1] -= nums[insertion_index];
             prefix[i + 1] += new_value;
         }
-        tree.update(insertion_index, new_value);
+        tree.update_to(insertion_index, new_value);
 
         assert_eq!(
             prefix,
