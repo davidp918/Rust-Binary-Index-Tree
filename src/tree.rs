@@ -6,7 +6,7 @@ where
     T: AddAssign + Sub<Output = T> + Copy + Default,
 {
     n: usize,
-    tree: Vec<T>,
+    nums: Vec<T>,
 }
 
 impl<T> BinaryIndexTree<T>
@@ -17,7 +17,7 @@ where
     pub fn new(length: usize) -> BinaryIndexTree<T> {
         BinaryIndexTree {
             n: length + 1,
-            tree: vec![T::default(); length + 1],
+            nums: vec![T::default(); length + 1],
         }
     }
 
@@ -35,33 +35,32 @@ where
     /// since the difference of new and old value does not need to be calculated
     pub fn update(&mut self, index: usize, delta: T) {
         for i in bit_up(index + 1, self.n) {
-            self.tree[i] += delta;
+            self.nums[i] += delta;
         }
     }
 
     /// Updates the original nums[index] to value, runs slower than fn update
-    /// since the tree has to compute the difference of new and old value.
-    /// It influences the sum of nums[..index+1]
+    /// since the tree has to compute the difference of new and old value
     pub fn update_to(&mut self, index: usize, value: T) {
         let prev = self.query(index + 1) - self.query(index);
         let delta = value - prev;
         for i in bit_up(index + 1, self.n) {
-            self.tree[i] += delta;
+            self.nums[i] += delta;
         }
     }
 
-    /// Query the sum of the original nums[..index],
-    /// note nums[index] is excluded
+    /// Query the sum of the original nums[..index]
+    /// Note that nums[index] is excluded
     pub fn query(&self, index: usize) -> T {
         let mut sum = T::default();
         for x in bit_remove(index) {
-            sum += self.tree[x];
+            sum += self.nums[x];
         }
         sum
     }
 
-    /// return the sum over the given range, both inclusive,
-    /// meaning the original nums[left] & nums[right] are included in the sum
+    /// Returns the sum over the given range, both inclusive,
+    /// meaning that the original nums[left] & nums[right] are included in the sum
     pub fn range(&self, left: usize, right: usize) -> T {
         // right + 1, since the querying index is excluded
         self.query(right as usize + 1) - self.query(left as usize)

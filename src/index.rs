@@ -21,6 +21,7 @@ pub mod indexing {
     #[inline]
     // increases the least significant bit
     fn increment_lsb(i: usize) -> usize {
+        // cannot use i += i & (-i) since usize is unsigned
         (i | i.wrapping_sub(1)).wrapping_add(1)
     }
 
@@ -39,6 +40,7 @@ pub mod indexing {
     #[inline]
     // removes the least significant bit
     fn remove_lsb(i: usize) -> usize {
+        // cannot use i -= i & (-i) since usize is unsigned
         i & i.wrapping_sub(1)
     }
 }
